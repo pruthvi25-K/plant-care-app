@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+/*
+ * PlantCare Design System — CSS Custom Properties
+ * Ticket A-00: Design tokens for Dual Theme (Light + Dark)
+ */
+
+:root {
+  /* ── Light Theme (Clean Earthy Botanical) ── */
+  --bg-primary: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --border-subtle: #e2e8f0;
+  --border-focus: #166534;
+
+  /* Brand Accents */
+  --brand-primary: #166534;
+  --brand-primary-hover: #14532d;
+  --brand-accent: #22c55e;
+  --brand-subtle: #dcfce7;
+
+  /* Functional Telemetry Colors */
+  --telemetry-water: #0284c7;
+  --telemetry-water-bg: #e0f2fe;
+  --telemetry-sun: #d97706;
+  --telemetry-sun-bg: #fef3c7;
+  --status-online: #16a34a;
+  --status-offline: #dc2626;
+  --status-warning: #f59e0b;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08);
+  --shadow-card-hover: 0 4px 12px 0 rgb(0 0 0 / 0.1);
+
+  /* Font */
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+}
+
+.dark {
+  /* ── Dark Theme (Obsidian & Emerald) ── */
+  --bg-primary: #0b1117;
+  --bg-surface: #131c26;
+  --bg-surface-elevated: #1b2735;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-subtle: #1e293b;
+  --border-focus: #22c55e;
+
+  /* Brand Accents */
+  --brand-primary: #22c55e;
+  --brand-primary-hover: #4ade80;
+  --brand-accent: #15803d;
+  --brand-subtle: #064e3b;
+
+  /* Functional Telemetry Colors */
+  --telemetry-water: #38bdf8;
+  --telemetry-water-bg: #082f49;
+  --telemetry-sun: #fbbf24;
+  --telemetry-sun-bg: #451a03;
+  --status-online: #22c55e;
+  --status-offline: #ef4444;
+  --status-warning: #f59e0b;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --shadow-card-hover: 0 4px 12px 0 rgb(0 0 0 / 0.4);
+}
+
+/* ── Base Reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Smooth theme transitions ── */
+body,
+.theme-transition,
+.theme-transition * {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}

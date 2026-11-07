@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+dist/
+
+# Environment (secrets)
+.env
+.env.local
+.env.*.local
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Build & Cache
+*.tsbuildinfo
+.eslintcache
+coverage/
+
+# Firebase emulator data
+.firebase/
+firebase-debug.log
+firestore-debug.log
+database-debug.log
+ui-debug.log
