@@ -127,7 +127,7 @@ For exhaustive schema specifications, handshake contracts, and edge-case behavio
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/your-team/plant-care-app.git
+git clone https://github.com/pruthvi25-K/plant-care-app.git
 cd plant-care-app
 
 # Install dependencies
@@ -269,7 +269,7 @@ For detailed hardware schematics, pin mappings, ESP32 Arduino C++ firmware snipp
 - **Member 1 (Firmware / ESP32 Lead):** JSON payloads, command handshake, WiFi reconnection logic.
 - **Member 2 (Hardware / Circuit Lead):** Sensor ADC calibration, relay driving circuits, power decoupling.
 - **Member 3 (Backend / Cloud Lead):** RTDB security rules, Firebase project setup, indexing.
-- **Member 4 (App & UI/UX Lead - Pruthviraj):** PWA architecture, testing suites, responsive design.
+- **Member 4 (App & UI/UX Lead - Pruthviraj Kale):** PWA architecture, testing suites, responsive design. ([@pruthvi25-K](https://github.com/pruthvi25-K))
 - **Member 5 (QA & Documentation Lead):** Test plans, demo rehearsal scripts, edge cases.
 
 ---

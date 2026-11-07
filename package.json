@@ -3,6 +3,11 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "author": "Pruthviraj Kale <https://github.com/pruthvi25-K>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pruthvi25-K/plant-care-app.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
