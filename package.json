@@ -12,7 +12,8 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,md}\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "mock-device": "npx tsx scripts/simulateDevice.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
