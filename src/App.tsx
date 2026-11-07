@@ -10,6 +10,7 @@ import { MoistureCard } from '@/components/MoistureCard'
 import { TemperatureCard } from '@/components/TemperatureCard'
 import { ActuatorStatusCard } from '@/components/ActuatorStatusCard'
 import { PresetSelector } from '@/components/PresetSelector'
+import { CustomSettingsCard } from '@/components/CustomSettingsCard'
 import { AuthModal } from '@/components/AuthModal'
 import { Sun, Moon, Leaf, User as UserIcon, LogOut, LogIn } from 'lucide-react'
 
@@ -20,7 +21,7 @@ export function App() {
   const [currentDeviceId, setCurrentDeviceId] = useState('plant1')
 
   const { reading, loading: telemetryLoading } = useDeviceTelemetry(currentDeviceId)
-  const { profile, saving: profileSaving, applyPreset } = useDeviceProfile(currentDeviceId)
+  const { profile, saving: profileSaving, applyPreset, updateProfile } = useDeviceProfile(currentDeviceId)
   const offlineStatus = useDeviceOfflineStatus(reading?.ts)
 
   return (
@@ -107,6 +108,14 @@ export function App() {
         <PresetSelector
           currentProfile={profile}
           onSelectPreset={applyPreset}
+          saving={profileSaving}
+          disabled={offlineStatus.isOffline}
+        />
+
+        {/* Custom Fine-Tuning Settings */}
+        <CustomSettingsCard
+          currentProfile={profile}
+          onSaveProfile={updateProfile}
           saving={profileSaving}
           disabled={offlineStatus.isOffline}
         />
