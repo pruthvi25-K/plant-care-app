@@ -1,0 +1,101 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "plants": {
+      "$deviceId": {
+        "reading": {
+          ".read": "auth != null",
+          ".write": "auth != null",
+          ".validate": "newData.hasChildren(['moisture', 'temperature', 'ts'])",
+          "moisture": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+          },
+          "temperature": {
+            ".validate": "newData.isNumber() && newData.val() >= -10 && newData.val() <= 60"
+          },
+          "pump_active": {
+            ".validate": "!newData.exists() || newData.isBoolean()"
+          },
+          "light_active": {
+            ".validate": "!newData.exists() || newData.isBoolean()"
+          },
+          "ts": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "profile": {
+          ".read": "auth != null",
+          ".write": "auth != null",
+          ".validate": "newData.hasChildren(['moisture_min', 'moisture_max', 'water_duration_s'])",
+          "preset_name": {
+            ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 32)"
+          },
+          "moisture_min": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < newData.parent().child('moisture_max').val()"
+          },
+          "moisture_max": {
+            ".validate": "newData.isNumber() && newData.val() <= 100"
+          },
+          "water_duration_s": {
+            ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 10"
+          },
+          "light_mode": {
+            ".validate": "!newData.exists() || newData.val() == 'auto' || newData.val() == 'manual' || newData.val() == 'off'"
+          },
+          "light_schedule_hours": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 1 && newData.val() <= 24)"
+          },
+          "updated_at": {
+            ".validate": "!newData.exists() || newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "command": {
+          ".read": "auth != null",
+          ".write": "auth != null",
+          ".validate": "newData.hasChildren(['ts'])",
+          "water_now": {
+            ".validate": "!newData.exists() || newData.isBoolean()"
+          },
+          "water_duration_s": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 1 && newData.val() <= 10)"
+          },
+          "grow_light": {
+            ".validate": "!newData.exists() || newData.isBoolean()"
+          },
+          "ts": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "history": {
+          ".read": "auth != null",
+          "$pushId": {
+            ".write": "auth != null",
+            ".validate": "newData.hasChildren(['moisture', 'temperature', 'ts'])",
+            "moisture": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "temperature": {
+              ".validate": "newData.isNumber() && newData.val() >= -10 && newData.val() <= 60"
+            },
+            "ts": {
+              ".validate": "newData.isNumber()"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    }
+  }
+}
