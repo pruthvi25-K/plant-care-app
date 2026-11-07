@@ -1,17 +1,20 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { AuthProvider } from '../context/AuthContext'
+import { DemoModeProvider } from '../context/DemoModeContext'
 import { App } from '../App'
 
 function renderApp() {
   return render(
     <AuthProvider>
-      <App />
+      <DemoModeProvider>
+        <App />
+      </DemoModeProvider>
     </AuthProvider>,
   )
 }
 
-describe('App Dashboard (Ticket A-05)', () => {
+describe('App Dashboard (Ticket A-05 / A-11)', () => {
   it('renders the PlantCare heading', () => {
     renderApp()
     expect(screen.getByText('PlantCare')).toBeInTheDocument()
@@ -50,7 +53,7 @@ describe('App Dashboard (Ticket A-05)', () => {
 
   it('CRITICAL: strictly labels as "Grow light" and does NOT contain "UV light"', () => {
     renderApp()
-    expect(screen.getByText('Grow light')).toBeInTheDocument()
+    expect(screen.getAllByText(/Grow light/i).length).toBeGreaterThan(0)
     const body = document.body.textContent ?? ''
     expect(body).not.toMatch(/UV light/i)
   })

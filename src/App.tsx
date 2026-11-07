@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useTheme } from '@/hooks/useTheme'
 import { useAuth } from '@/context/AuthContext'
+import { useDemoMode } from '@/context/DemoModeContext'
 import { useDeviceTelemetry } from '@/hooks/useDeviceTelemetry'
 import { useDeviceOfflineStatus } from '@/hooks/useDeviceOfflineStatus'
 import { useDeviceProfile } from '@/hooks/useDeviceProfile'
 import { useDeviceCommands } from '@/hooks/useDeviceCommands'
 import { DeviceSelector } from '@/components/DeviceSelector'
 import { OfflineBanner } from '@/components/OfflineBanner'
+import { DemoModeBanner } from '@/components/DemoModeBanner'
 import { MoistureCard } from '@/components/MoistureCard'
 import { TemperatureCard } from '@/components/TemperatureCard'
 import { ActuatorStatusCard } from '@/components/ActuatorStatusCard'
@@ -15,7 +17,7 @@ import { PresetSelector } from '@/components/PresetSelector'
 import { CustomSettingsCard } from '@/components/CustomSettingsCard'
 import { TelemetryChart } from '@/components/TelemetryChart'
 import { AuthModal } from '@/components/AuthModal'
-import { Sun, Moon, Leaf, User as UserIcon, LogOut, LogIn } from 'lucide-react'
+import { Sun, Moon, Leaf, User as UserIcon, LogOut, LogIn, Sparkles } from 'lucide-react'
 
 export function App() {
   const { theme, toggleTheme } = useTheme()
@@ -23,20 +25,81 @@ export function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [currentDeviceId, setCurrentDeviceId] = useState('plant1')
 
-  const { reading, loading: telemetryLoading } = useDeviceTelemetry(currentDeviceId)
-  const { profile, saving: profileSaving, applyPreset, updateProfile } = useDeviceProfile(currentDeviceId)
-  const offlineStatus = useDeviceOfflineStatus(reading?.ts)
+  // Real Hardware State
+  const { reading: liveReading, loading: liveLoading } = useDeviceTelemetry(currentDeviceId)
+  const {
+    profile: liveProfile,
+    saving: liveSaving,
+    applyPreset: liveApplyPreset,
+    updateProfile: liveUpdateProfile,
+  } = useDeviceProfile(currentDeviceId)
+  const liveOfflineStatus = useDeviceOfflineStatus(liveReading?.ts)
 
   const {
-    wateringPending,
-    wateringSuccess,
-    commandError,
-    triggerWaterNow,
-    setGrowLight,
-  } = useDeviceCommands(currentDeviceId, reading?.pump_active ?? false)
+    wateringPending: liveWateringPending,
+    wateringSuccess: liveWateringSuccess,
+    commandError: liveCommandError,
+    triggerWaterNow: liveTriggerWaterNow,
+    setGrowLight: liveSetGrowLight,
+  } = useDeviceCommands(currentDeviceId, liveReading?.pump_active ?? false)
 
-  const handleSetLightMode = async (mode: 'auto' | 'manual') => {
-    await updateProfile({ light_mode: mode })
+  // Demo Mode State
+  const {
+    isDemoMode,
+    toggleDemoMode,
+    demoReading,
+    demoProfile,
+    demoWaterNow,
+    demoToggleLight,
+    demoApplyPreset,
+    demoUpdateProfile,
+    demoWateringPending,
+    demoWateringSuccess,
+  } = useDemoMode()
+
+  // Unified State Resolution: Demo Mode overrides live network
+  const activeReading = isDemoMode ? demoReading : liveReading
+  const activeProfile = isDemoMode ? demoProfile : liveProfile
+  const activeLoading = isDemoMode ? false : liveLoading
+  const activeSaving = isDemoMode ? false : liveSaving
+  const activeOfflineStatus = isDemoMode
+    ? { isOffline: false, isStale: false, secondsSince: 1, statusLabel: 'ONLINE' as const }
+    : liveOfflineStatus
+
+  const activeWateringPending = isDemoMode ? demoWateringPending : liveWateringPending
+  const activeWateringSuccess = isDemoMode ? demoWateringSuccess : liveWateringSuccess
+  const activeCommandError = isDemoMode ? null : liveCommandError
+
+  const handleWaterNow = async (seconds?: number) => {
+    if (isDemoMode) {
+      await demoWaterNow(seconds)
+    } else {
+      await liveTriggerWaterNow(seconds)
+    }
+  }
+
+  const handleToggleLight = async (active: boolean) => {
+    if (isDemoMode) {
+      await demoToggleLight(active)
+    } else {
+      await liveSetGrowLight(active)
+    }
+  }
+
+  const handleApplyPreset = (key: 'succulent' | 'tropical' | 'herbs' | 'fern') => {
+    if (isDemoMode) {
+      demoApplyPreset(key)
+    } else {
+      liveApplyPreset(key)
+    }
+  }
+
+  const handleUpdateProfile = async (custom: Parameters<typeof liveUpdateProfile>[0]) => {
+    if (isDemoMode) {
+      demoUpdateProfile(custom)
+    } else {
+      await liveUpdateProfile(custom)
+    }
   }
 
   return (
@@ -47,6 +110,12 @@ export function App() {
           <div className="flex items-center gap-2">
             <Leaf className="h-6 w-6 text-[var(--brand-primary)]" />
             <h1 className="text-lg font-bold tracking-tight">PlantCare</h1>
+            {isDemoMode && (
+              <span className="hidden items-center gap-1 rounded-full bg-purple-500/20 px-2 py-0.5 text-[10px] font-bold text-purple-700 sm:flex dark:text-purple-300">
+                <Sparkles className="h-3 w-3" />
+                <span>DEMO</span>
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -94,14 +163,19 @@ export function App() {
 
       {/* Main Content */}
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
-        {/* Device Selection Bar */}
-        <DeviceSelector
-          currentDeviceId={currentDeviceId}
-          onSelectDevice={setCurrentDeviceId}
-        />
+        {/* Demo Mode Toggle Banner */}
+        <DemoModeBanner isDemoMode={isDemoMode} onToggleDemoMode={toggleDemoMode} />
+
+        {/* Device Selection Bar (only relevant when not in demo mode) */}
+        {!isDemoMode && (
+          <DeviceSelector
+            currentDeviceId={currentDeviceId}
+            onSelectDevice={setCurrentDeviceId}
+          />
+        )}
 
         {/* Offline / Connectivity Banner */}
-        <OfflineBanner status={offlineStatus} deviceId={currentDeviceId} />
+        <OfflineBanner status={activeOfflineStatus} deviceId={isDemoMode ? 'Virtual Demo Node' : currentDeviceId} />
 
         {/* Live Monitoring Dashboard Cards */}
         <section aria-labelledby="live-metrics-heading">
@@ -109,29 +183,29 @@ export function App() {
             Live Telemetry Metrics
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <MoistureCard moisture={reading?.moisture ?? null} loading={telemetryLoading} />
-            <TemperatureCard temperature={reading?.temperature ?? null} loading={telemetryLoading} />
+            <MoistureCard moisture={activeReading?.moisture ?? null} loading={activeLoading} />
+            <TemperatureCard temperature={activeReading?.temperature ?? null} loading={activeLoading} />
             <ActuatorStatusCard
-              pumpActive={reading?.pump_active ?? false}
-              lightActive={reading?.light_active ?? false}
-              lastSeenTs={reading?.ts ?? null}
+              pumpActive={activeReading?.pump_active ?? false}
+              lightActive={activeReading?.light_active ?? false}
+              lastSeenTs={activeReading?.ts ?? null}
             />
           </div>
         </section>
 
         {/* Manual Hardware Actuator Controls (Water Now & Grow Light) */}
         <ManualControls
-          pumpActive={reading?.pump_active ?? false}
-          lightActive={reading?.light_active ?? false}
-          isOffline={offlineStatus.isOffline}
-          wateringPending={wateringPending}
-          wateringSuccess={wateringSuccess}
-          commandError={commandError}
-          lightMode={profile?.light_mode ?? 'auto'}
-          lightScheduleHours={profile?.light_schedule_hours ?? 12}
-          onWaterNow={triggerWaterNow}
-          onToggleLight={setGrowLight}
-          onSetLightMode={handleSetLightMode}
+          pumpActive={activeReading?.pump_active ?? false}
+          lightActive={activeReading?.light_active ?? false}
+          isOffline={activeOfflineStatus.isOffline}
+          wateringPending={activeWateringPending}
+          wateringSuccess={activeWateringSuccess}
+          commandError={activeCommandError}
+          lightMode={activeProfile?.light_mode ?? 'auto'}
+          lightScheduleHours={activeProfile?.light_schedule_hours ?? 12}
+          onWaterNow={handleWaterNow}
+          onToggleLight={handleToggleLight}
+          onSetLightMode={async (mode) => handleUpdateProfile({ light_mode: mode })}
         />
 
         {/* Telemetry Historical Trend Chart */}
@@ -139,18 +213,18 @@ export function App() {
 
         {/* Plant Care Presets */}
         <PresetSelector
-          currentProfile={profile}
-          onSelectPreset={applyPreset}
-          saving={profileSaving}
-          disabled={offlineStatus.isOffline}
+          currentProfile={activeProfile}
+          onSelectPreset={handleApplyPreset}
+          saving={activeSaving}
+          disabled={activeOfflineStatus.isOffline}
         />
 
         {/* Custom Fine-Tuning Settings */}
         <CustomSettingsCard
-          currentProfile={profile}
-          onSaveProfile={updateProfile}
-          saving={profileSaving}
-          disabled={offlineStatus.isOffline}
+          currentProfile={activeProfile}
+          onSaveProfile={handleUpdateProfile}
+          saving={activeSaving}
+          disabled={activeOfflineStatus.isOffline}
         />
       </main>
 
