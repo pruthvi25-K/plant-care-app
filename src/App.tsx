@@ -4,11 +4,13 @@ import { useAuth } from '@/context/AuthContext'
 import { useDeviceTelemetry } from '@/hooks/useDeviceTelemetry'
 import { useDeviceOfflineStatus } from '@/hooks/useDeviceOfflineStatus'
 import { useDeviceProfile } from '@/hooks/useDeviceProfile'
+import { useDeviceCommands } from '@/hooks/useDeviceCommands'
 import { DeviceSelector } from '@/components/DeviceSelector'
 import { OfflineBanner } from '@/components/OfflineBanner'
 import { MoistureCard } from '@/components/MoistureCard'
 import { TemperatureCard } from '@/components/TemperatureCard'
 import { ActuatorStatusCard } from '@/components/ActuatorStatusCard'
+import { ManualControls } from '@/components/ManualControls'
 import { PresetSelector } from '@/components/PresetSelector'
 import { CustomSettingsCard } from '@/components/CustomSettingsCard'
 import { AuthModal } from '@/components/AuthModal'
@@ -23,6 +25,18 @@ export function App() {
   const { reading, loading: telemetryLoading } = useDeviceTelemetry(currentDeviceId)
   const { profile, saving: profileSaving, applyPreset, updateProfile } = useDeviceProfile(currentDeviceId)
   const offlineStatus = useDeviceOfflineStatus(reading?.ts)
+
+  const {
+    wateringPending,
+    wateringSuccess,
+    commandError,
+    triggerWaterNow,
+    setGrowLight,
+  } = useDeviceCommands(currentDeviceId, reading?.pump_active ?? false)
+
+  const handleSetLightMode = async (mode: 'auto' | 'manual') => {
+    await updateProfile({ light_mode: mode })
+  }
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] theme-transition">
@@ -103,6 +117,21 @@ export function App() {
             />
           </div>
         </section>
+
+        {/* Manual Hardware Actuator Controls (Water Now & Grow Light) */}
+        <ManualControls
+          pumpActive={reading?.pump_active ?? false}
+          lightActive={reading?.light_active ?? false}
+          isOffline={offlineStatus.isOffline}
+          wateringPending={wateringPending}
+          wateringSuccess={wateringSuccess}
+          commandError={commandError}
+          lightMode={profile?.light_mode ?? 'auto'}
+          lightScheduleHours={profile?.light_schedule_hours ?? 12}
+          onWaterNow={triggerWaterNow}
+          onToggleLight={setGrowLight}
+          onSetLightMode={handleSetLightMode}
+        />
 
         {/* Plant Care Presets */}
         <PresetSelector
