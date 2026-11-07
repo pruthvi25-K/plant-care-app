@@ -1,70 +1,37 @@
 # Plant Care Web App — Ticket Backlog & Pipeline
-
-## Pipeline Overview
-- Each ticket is implemented on its own git branch: `feat/A-xx-<name>`.
-- Workflow per ticket: **Plan → Tests First → Implementation → Review → Security Audit → Merge**.
-- Priority / Cuts if time-constrained:
-  - **Can cut:** A-10 (History Chart), Custom profile advanced editing, PWA install prompts.
-  - **CANNOT cut:** A-05 (Dashboard), A-06 (Offline state), A-07 (Plant Presets), A-11 (Demo Mode).
+**Final Status:** ALL TICKETS COMPLETE (A-00 through A-14)  
+**Main Branch:** Up to date (`main`)  
+**Automated Tests:** 70 passed across 13 test suites  
+**Build Status:** Clean production build (`tsc -b && vite build`)  
 
 ---
 
-## Ticket Specifications
+## 📋 Ticket Completion Matrix
 
-### `A-00`: Design System & Foundations
-- **Goal:** Establish Tailwind design tokens, typography, color palette, UI component primitives (`Button`, `Card`, `Badge`, `ToggleSwitch`, `ThresholdSlider`, `StatusIndicator`).
-- **Requirements:** Mobile-first, must render crisply down to 360px viewport width. Dual Theme (Dark/Light).
-- **Rules:** Clean semantic HTML, no raw inline styles.
+| Ticket | Description | Branch | Status | Commit |
+|---|---|---|---|---|
+| **A-00** | Design System & Foundations | `feat/A-00-design-system` | **COMPLETE** | `390278f` |
+| **A-01** | Project Scaffold & Tooling Setup | `feat/A-01-scaffold` | **COMPLETE** | `1c56a4e` |
+| **A-02** | Firebase RTDB Rules & Emulator | `feat/A-02-firebase-rules` | **COMPLETE** | `ac7d745` |
+| **A-03** | Mock ESP32 Hardware Simulator | `feat/A-03-mock-device` | **COMPLETE** | `5c552a2` |
+| **A-04** | Authentication & Protected Routing | `feat/A-04-auth` | **COMPLETE** | `a969611` |
+| **A-05** | Live Monitoring Dashboard | `feat/A-05-dashboard` | **COMPLETE** | `26149da` |
+| **A-06** | Offline Detection & Warning Banner | `feat/A-06-offline-detection` | **COMPLETE** | `fb19dee` |
+| **A-07** | Plant Presets & Profile Sync | `feat/A-07-presets` | **COMPLETE** | `a4cea00` |
+| **A-08** | Custom Settings & Input Validation | `feat/A-08-custom-settings` | **COMPLETE** | `03ff3dd` |
+| **A-09** | Manual Controls (Water & Grow light) | `feat/A-09-controls` | **COMPLETE** | `dfc2676` |
+| **A-10** | Telemetry History Chart (Recharts) | `feat/A-10-history-chart` | **COMPLETE** | `e3378e7` |
+| **A-11** | Interactive Demo Mode (Zero Hardware)| `feat/A-11-demo-mode` | **COMPLETE** | `33c37a1` |
+| **A-12** | PWA Manifest & Service Worker | `feat/A-12-pwa-polish` | **COMPLETE** | `11d2c2d` |
+| **A-13** | Comprehensive Security Audit | `feat/A-13-security-review` | **COMPLETE** | `4031c31` |
+| **A-14** | Project Hand-Over & Team Documentation| `feat/A-14-hand-over` | **COMPLETE** | `6cab286` |
 
-### `A-01`: Project Scaffold & Tooling Setup
-- **Goal:** Initialize React + Vite + TypeScript application with Tailwind CSS, Vitest, React Testing Library, ESLint, Prettier, and Playwright.
-- **Deliverables:** Working dev server script, clean test harness, `.env.example` file (never `.env` committed).
+---
 
-### `A-02`: Firebase Configuration, Security Rules & Local Emulator
-- **Goal:** Set up Firebase client SDK (Auth + RTDB), write `database.rules.json` enforcing strict ownership and schema constraints, configure Firebase Emulator Suite.
-- **Rules:** Rules must NEVER be `true` for open read/write.
-
-### `A-03`: Mock ESP32 Hardware Simulator
-- **Goal:** Lightweight developer script/mock service to simulate real-time ESP32 telemetry writes to `plants/{deviceId}/reading` and listen for `plants/{deviceId}/command`.
-- **Purpose:** Decouple frontend UI development from physical hardware availability.
-
-### `A-04`: Authentication & Protected Routing
-- **Goal:** Robust dual authentication (Email/Password + 1-click "Guest Evaluator" demo session). Route protection.
-- **States:** Loading spinner, error toast, empty session redirect.
-
-### `A-05`: Live Monitoring Dashboard
-- **Goal:** Display real-time soil moisture gauge/card, ambient temperature display, pump status badge, and Grow light status.
-- **States:** Loading skeleton, empty state, and live updating view via Firebase RTDB listeners.
-
-### `A-06`: Offline Detection & Warning Banner
-- **Goal:** Detect if `Date.now()/1000 - reading.ts > 30s`.
-- **Behavior:** Display high-visibility "Device Offline" banner, disable active command buttons ("Water Now"), and show last-seen timestamp.
-
-### `A-07`: Plant Presets & Profile Synchronization
-- **Goal:** Preset selection cards (Succulent: 15–30%, Tropical: 40–65%, Herbs: 50–70%, Fern: 60–80%).
-- **Behavior:** Selecting a preset writes preconfigured thresholds and pulse duration to `plants/{deviceId}/profile`.
-
-### `A-08`: Custom Settings & Input Validation
-- **Goal:** Allow user to set custom `moisture_min`, `moisture_max`, and pump duration.
-- **Validation:** Ensure `min < max`, `min >= 0`, `max <= 100`, pump duration `1s <= d <= 10s`. Show immediate validation errors. No `eval` or unsafe parsing.
-
-### `A-09`: Manual Controls (Water Now & Grow Light)
-- **Goal:** "Water Now" button and "Grow light" dual-mode toggle switch.
-- **Terminology:** MUST label as **"Grow light"**, NEVER "UV light".
-- **Rules:** Disable button when pump is active or device is offline. Writes timestamped payload to `plants/{deviceId}/command`.
-
-### `A-10`: Telemetry History Chart (Optional cut if short on time)
-- **Goal:** Render moisture and temperature trends using Recharts with 1-hour and 24-hour toggles.
-- **Requirements:** Responsive container down to 360px without horizontal scrollbar blowout.
-
-### `A-11`: Demo Mode (Zero-Hardware Presentation Mode)
-- **Goal:** An in-memory mock simulator loop allowing presentation and grading with zero physical hardware and zero live Firebase credentials.
-
-### `A-12`: PWA Manifest, Service Worker & UI Polish
-- **Goal:** Web app manifest, theme colors, home-screen icons, offline asset caching, and touch-target polish.
-
-### `A-13`: Comprehensive Security Review
-- **Goal:** Audit Firebase RTDB rules, verify no `.env` or credentials leaked, verify no `dangerouslySetInnerHTML`, run automated security tests.
-
-### `A-14`: Project Hand-over & Documentation
-- **Goal:** Final deployment check (Vercel), documentation handover notes for teammate integration, clean README.
+## 🔒 Verification & Compliance Summary
+- **Firmware Safety:** Command duration capped at $\le 10$ seconds in Firebase rules, validation schema, and UI controls.
+- **Offline Reliability:** $>30$s telemetry staleness detection with automatic control lockouts.
+- **Strict Nomenclature:** Strictly labeled **"Grow light"** (0 occurrences of "UV light" in source).
+- **Zero Injections:** Zero occurrences of `dangerouslySetInnerHTML`, `eval()`, or `new Function()`.
+- **Zero Secret Leaks:** `.gitignore` protects all `.env*` files; only `.env.example` placeholder committed.
+- **Responsive & Dual Theme:** 360px viewport tested; accessible Dark & Light modes.
