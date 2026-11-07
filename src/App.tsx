@@ -13,6 +13,7 @@ import { ActuatorStatusCard } from '@/components/ActuatorStatusCard'
 import { ManualControls } from '@/components/ManualControls'
 import { PresetSelector } from '@/components/PresetSelector'
 import { CustomSettingsCard } from '@/components/CustomSettingsCard'
+import { TelemetryChart } from '@/components/TelemetryChart'
 import { AuthModal } from '@/components/AuthModal'
 import { Sun, Moon, Leaf, User as UserIcon, LogOut, LogIn } from 'lucide-react'
 
@@ -132,6 +133,9 @@ export function App() {
           onToggleLight={setGrowLight}
           onSetLightMode={handleSetLightMode}
         />
+
+        {/* Telemetry Historical Trend Chart */}
+        <TelemetryChart deviceId={currentDeviceId} />
 
         {/* Plant Care Presets */}
         <PresetSelector
