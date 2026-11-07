@@ -11,25 +11,30 @@ function renderApp() {
   )
 }
 
-describe('App scaffold', () => {
+describe('App Dashboard (Ticket A-05)', () => {
   it('renders the PlantCare heading', () => {
     renderApp()
     expect(screen.getByText('PlantCare')).toBeInTheDocument()
   })
 
-  it('renders soil moisture placeholder card', () => {
+  it('renders soil moisture live telemetry card', () => {
     renderApp()
     expect(screen.getByText('Soil Moisture')).toBeInTheDocument()
   })
 
-  it('renders temperature placeholder card', () => {
+  it('renders ambient temperature live card', () => {
     renderApp()
-    expect(screen.getByText('Temperature')).toBeInTheDocument()
+    expect(screen.getByText('Ambient Temperature')).toBeInTheDocument()
   })
 
-  it('renders device status card', () => {
+  it('renders actuator status card', () => {
     renderApp()
-    expect(screen.getByText('Device Status')).toBeInTheDocument()
+    expect(screen.getByText('Actuator Status')).toBeInTheDocument()
+  })
+
+  it('renders hardware node selector', () => {
+    renderApp()
+    expect(screen.getByLabelText(/Select Hardware Device/i)).toBeInTheDocument()
   })
 
   it('renders theme toggle button', () => {
@@ -43,8 +48,9 @@ describe('App scaffold', () => {
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
   })
 
-  it('does NOT contain the term "UV light" anywhere', () => {
+  it('CRITICAL: strictly labels as "Grow light" and does NOT contain "UV light"', () => {
     renderApp()
+    expect(screen.getByText('Grow light')).toBeInTheDocument()
     const body = document.body.textContent ?? ''
     expect(body).not.toMatch(/UV light/i)
   })

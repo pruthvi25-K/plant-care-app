@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { useTheme } from '@/hooks/useTheme'
 import { useAuth } from '@/context/AuthContext'
+import { useDeviceTelemetry } from '@/hooks/useDeviceTelemetry'
+import { DeviceSelector } from '@/components/DeviceSelector'
+import { MoistureCard } from '@/components/MoistureCard'
+import { TemperatureCard } from '@/components/TemperatureCard'
+import { ActuatorStatusCard } from '@/components/ActuatorStatusCard'
 import { AuthModal } from '@/components/AuthModal'
 import { Sun, Moon, Leaf, User as UserIcon, LogOut, LogIn } from 'lucide-react'
 
@@ -8,6 +13,9 @@ export function App() {
   const { theme, toggleTheme } = useTheme()
   const { user, isGuest, logout } = useAuth()
   const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [currentDeviceId, setCurrentDeviceId] = useState('plant1')
+
+  const { reading, loading } = useDeviceTelemetry(currentDeviceId)
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] theme-transition">
@@ -63,45 +71,28 @@ export function App() {
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Telemetry Placeholders */}
-          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-card-hover)]">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-              Soil Moisture
-            </p>
-            <p className="mt-2 text-4xl font-extrabold tracking-tight md:text-5xl">
-              --<span className="ml-1 text-lg font-medium text-[var(--text-muted)]">%</span>
-            </p>
-            <p className="mt-2 text-sm text-[var(--text-secondary)]">
-              Awaiting live reading...
-            </p>
-          </div>
+      <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
+        {/* Device Selection Bar */}
+        <DeviceSelector
+          currentDeviceId={currentDeviceId}
+          onSelectDevice={setCurrentDeviceId}
+        />
 
-          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-card-hover)]">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-              Temperature
-            </p>
-            <p className="mt-2 text-4xl font-extrabold tracking-tight md:text-5xl">
-              --<span className="ml-1 text-lg font-medium text-[var(--text-muted)]">°C</span>
-            </p>
-            <p className="mt-2 text-sm text-[var(--text-secondary)]">
-              Awaiting live reading...
-            </p>
+        {/* Live Monitoring Dashboard Cards */}
+        <section aria-labelledby="live-metrics-heading">
+          <h2 id="live-metrics-heading" className="sr-only">
+            Live Telemetry Metrics
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <MoistureCard moisture={reading?.moisture ?? null} loading={loading} />
+            <TemperatureCard temperature={reading?.temperature ?? null} loading={loading} />
+            <ActuatorStatusCard
+              pumpActive={reading?.pump_active ?? false}
+              lightActive={reading?.light_active ?? false}
+              lastSeenTs={reading?.ts ?? null}
+            />
           </div>
-
-          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-card-hover)]">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-              Device Status
-            </p>
-            <div className="mt-3 flex items-center gap-2">
-              <span className="inline-block h-3 w-3 rounded-full bg-[var(--status-warning)]" />
-              <span className="text-sm font-medium text-[var(--text-secondary)]">
-                Awaiting connection
-              </span>
-            </div>
-          </div>
-        </div>
+        </section>
       </main>
 
       {/* Auth Modal */}
