@@ -3,11 +3,13 @@ import { useTheme } from '@/hooks/useTheme'
 import { useAuth } from '@/context/AuthContext'
 import { useDeviceTelemetry } from '@/hooks/useDeviceTelemetry'
 import { useDeviceOfflineStatus } from '@/hooks/useDeviceOfflineStatus'
+import { useDeviceProfile } from '@/hooks/useDeviceProfile'
 import { DeviceSelector } from '@/components/DeviceSelector'
 import { OfflineBanner } from '@/components/OfflineBanner'
 import { MoistureCard } from '@/components/MoistureCard'
 import { TemperatureCard } from '@/components/TemperatureCard'
 import { ActuatorStatusCard } from '@/components/ActuatorStatusCard'
+import { PresetSelector } from '@/components/PresetSelector'
 import { AuthModal } from '@/components/AuthModal'
 import { Sun, Moon, Leaf, User as UserIcon, LogOut, LogIn } from 'lucide-react'
 
@@ -17,7 +19,8 @@ export function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [currentDeviceId, setCurrentDeviceId] = useState('plant1')
 
-  const { reading, loading } = useDeviceTelemetry(currentDeviceId)
+  const { reading, loading: telemetryLoading } = useDeviceTelemetry(currentDeviceId)
+  const { profile, saving: profileSaving, applyPreset } = useDeviceProfile(currentDeviceId)
   const offlineStatus = useDeviceOfflineStatus(reading?.ts)
 
   return (
@@ -74,7 +77,7 @@ export function App() {
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6">
+      <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
         {/* Device Selection Bar */}
         <DeviceSelector
           currentDeviceId={currentDeviceId}
@@ -90,8 +93,8 @@ export function App() {
             Live Telemetry Metrics
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <MoistureCard moisture={reading?.moisture ?? null} loading={loading} />
-            <TemperatureCard temperature={reading?.temperature ?? null} loading={loading} />
+            <MoistureCard moisture={reading?.moisture ?? null} loading={telemetryLoading} />
+            <TemperatureCard temperature={reading?.temperature ?? null} loading={telemetryLoading} />
             <ActuatorStatusCard
               pumpActive={reading?.pump_active ?? false}
               lightActive={reading?.light_active ?? false}
@@ -99,6 +102,14 @@ export function App() {
             />
           </div>
         </section>
+
+        {/* Plant Care Presets */}
+        <PresetSelector
+          currentProfile={profile}
+          onSelectPreset={applyPreset}
+          saving={profileSaving}
+          disabled={offlineStatus.isOffline}
+        />
       </main>
 
       {/* Auth Modal */}
