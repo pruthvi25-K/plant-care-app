@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useTheme } from '@/hooks/useTheme'
 import { useAuth } from '@/context/AuthContext'
 import { useDeviceTelemetry } from '@/hooks/useDeviceTelemetry'
+import { useDeviceOfflineStatus } from '@/hooks/useDeviceOfflineStatus'
 import { DeviceSelector } from '@/components/DeviceSelector'
+import { OfflineBanner } from '@/components/OfflineBanner'
 import { MoistureCard } from '@/components/MoistureCard'
 import { TemperatureCard } from '@/components/TemperatureCard'
 import { ActuatorStatusCard } from '@/components/ActuatorStatusCard'
@@ -16,6 +18,7 @@ export function App() {
   const [currentDeviceId, setCurrentDeviceId] = useState('plant1')
 
   const { reading, loading } = useDeviceTelemetry(currentDeviceId)
+  const offlineStatus = useDeviceOfflineStatus(reading?.ts)
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] theme-transition">
@@ -71,12 +74,15 @@ export function App() {
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
+      <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6">
         {/* Device Selection Bar */}
         <DeviceSelector
           currentDeviceId={currentDeviceId}
           onSelectDevice={setCurrentDeviceId}
         />
+
+        {/* Offline / Connectivity Banner */}
+        <OfflineBanner status={offlineStatus} deviceId={currentDeviceId} />
 
         {/* Live Monitoring Dashboard Cards */}
         <section aria-labelledby="live-metrics-heading">
